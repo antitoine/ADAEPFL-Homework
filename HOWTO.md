@@ -22,7 +22,7 @@ If you have only `origin`, you need to add the `upstream` like this :
 
 Check that all is find with `git remote -v`, then you can update from the upstream repository and the origin easily (sse next step).
 
-(There is a github note about that : [help.github.com/articles/configuring-a-remote-for-a-fork]([https://help.github.com/articles/configuring-a-remote-for-a-fork/))
+(There is a github note about that : [help.github.com/articles/configuring-a-remote-for-a-fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/))
 
 ### Update
 
@@ -34,7 +34,7 @@ Just execute this after adding the remote repository (only once, see above) :
 Fix conflit if there are any, then push all on `origin` :
 `git push origin master` 
 
-(There is a github note about that : [help.github.com/articles/syncing-a-fork]([https://help.github.com/articles/syncing-a-fork/))
+(There is a github note about that : [help.github.com/articles/syncing-a-fork](https://help.github.com/articles/syncing-a-fork/))
 
 ## Before commit a notebook
 

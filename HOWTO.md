@@ -43,6 +43,6 @@ Clean your notebook output to avoid extra data in the commit like the number of 
 To do so :
  - Open the notebook (like `file.ipynb`) open in Jupyter 
  - Go to the menu `Cell`
- - Then, `Current outputs`
+ - Then, `All output`
  - And click on `Clear`
 

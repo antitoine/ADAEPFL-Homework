@@ -1,6 +1,7 @@
 #!/usr/lib/python3
 
 import numpy as np
+import pandas as pd
 
 from dateutil import relativedelta
 from datetime import date
@@ -73,7 +74,7 @@ def run_once(classifiers, data, features, classes):
             'classifier': classifier,
             'scores': {
                 'accuracy': metrics.accuracy_score(y_test, predictions),
-                'f-score': metrics.f1_score(y_test, predictions, average='macro'),
+                'f-score': metrics.f1_score(y_test, predictions, average='binary'),
                 #'roc_auc': metrics.roc_auc_score(y_test_binary, y_probabilities)
             },
             'confusion_matrix': metrics.confusion_matrix(y_test, predictions)
@@ -91,7 +92,7 @@ def run_cross_validation(classifiers, data, features, classes):
 
     for classifier in classifiers:
         accuracy = cross_val_score(classifier, data[features], data[classes], cv=10, scoring='accuracy')
-        roc_auc = cross_val_score(classifier, data[features], y_binary, cv=10, scoring='roc_auc')
+        #roc_auc = cross_val_score(classifier, data[features], y_binary, cv=10, scoring='roc_auc')
 
         result = {
             'classifier': classifier,
@@ -138,3 +139,12 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+
+def retriew_above_thresold(classifier, features, thresold=10):
+
+    feature_importance = classifier.feature_importances_
+    feature_importance = 100.0 * (feature_importance / feature_importance.max())
+
+    index = np.where(feature_importance > thresold)[0]
+
+    return pd.Series(data=[feature_importance[i] for i in index], index=[features[i] for i in index])

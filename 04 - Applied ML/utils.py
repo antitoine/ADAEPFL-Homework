@@ -27,12 +27,13 @@ def compute_age(row):
     return delta.years
 
 
-def pondered_number_of_cards(row, cards_name):
+def regulate_number_of_cards(row, cards_name, k=1):
     """
     Given a player, function analyzes the skin color and balance the number of received cards if player is black.
 
     row: Row of the DataFrame, representing a dyad which contains a player.
     cardsName: Type of received cards for the player
+    k: factor of impact (more k is bigger more the regulation is important)
     """
     nb_cards = row[cards_name]
 
@@ -43,7 +44,7 @@ def pondered_number_of_cards(row, cards_name):
     else:
         coef = 0
 
-    nb_cards += nb_cards * coef
+    nb_cards += nb_cards * coef * k
 
     return nb_cards
 

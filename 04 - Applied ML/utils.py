@@ -193,6 +193,23 @@ def retrieve_above_threshold(classifier, features, threshold=10):
 
 
 def get_mean_squared_error(classifier, data, features, classes, samples, nbCrossVal):
+    """
+    Determines cross-validated training and test mean_square_error for different training set sizes.
+    A cross-validation generator splits the whole dataset k times in training and test data.
+    Subsets of the training set with varying sizes will be used to train the estimator and a mean
+    square error for each training subset size and the test set will be computed
+    ----------
+    classifier : object type that implements the "fit" and "predict" methods
+        An object of that type which is cloned for each validation.
+    data : array-like, shape (n_samples, n_features)
+        Training vector, where n_samples is the number of samples and
+        n_features is the number of features.
+    features : array-like, shape (n_samples) or (n_samples, n_features), optional
+        Target relative to X for classification or regression;
+        None for unsupervised learning.   
+    nb_samples : number of slice of data for the graph
+    nbCrossVal : number of cross-validation, more is higher better become the prediciton.
+    """
     error_with_cv_list = []
     error_without_cv_list = []
     
@@ -216,7 +233,9 @@ def get_mean_squared_error(classifier, data, features, classes, samples, nbCross
         predictions = classifier.predict(x_test)
 
         #training part.
-        error_with_cv = cross_val_score(classifier, x, y, cv=50, scoring='neg_mean_squared_error')
+        error_with_cv = cross_val_score(classifier, x, y, cv=nbCrossVal,
+                                        scoring='neg_mean_squared_error')
+        
         error_without_cv = mean_squared_error(y_test, predictions, multioutput='raw_values')
         
         error_with_cv_list.append(abs(error_with_cv))
@@ -224,9 +243,24 @@ def get_mean_squared_error(classifier, data, features, classes, samples, nbCross
         
     return (samples , error_with_cv_list , error_without_cv_list)
 
-
 def learning_curve_mean_squared_error (classifier, data, features, classes, nb_samples,nbCrossVal,ylim = None):
-
+    """
+    Generate a simple plot of the test and training learning curve depending of RMSE.
+    Parameters
+    ----------
+    classifier : object type that implements the "fit" and "predict" methods
+        An object of that type which is cloned for each validation.
+    data : array-like, shape (n_samples, n_features)
+        Training vector, where n_samples is the number of samples and
+        n_features is the number of features.
+    features : array-like, shape (n_samples) or (n_samples, n_features), optional
+        Target relative to X for classification or regression;
+        None for unsupervised learning.   
+    nb_samples : number of slice of data for the graph
+    nbCrossVal : number of cross-validation, more is higher better become the prediciton.
+    ylim : tuple, shape (ymin, ymax), optional
+        Defines minimum and maximum yvalues plotted.
+    """
     plt.figure()
     plt.title('Difference cross-validation, training with RMSE')
     ylim = None
@@ -245,22 +279,18 @@ def learning_curve_mean_squared_error (classifier, data, features, classes, nb_s
 
     # return the 
     train_sizes, train_scores, test_scores = get_mean_squared_error(
-                                                                    classifier,
-                                                                    data, features,
-                                                                    classes,value_sample,
-                                                                    nbCrossVal
-                                                                   )
+                      classifier,data, features,classes,value_sample,nbCrossVal)
 
-    train_scores_mean = np.max(train_scores, axis=1)
-    test_scores_mean  = np.mean(test_scores, axis=1)
+    # We take the best result by taking the minimum.
+    cv_mean_squared_error = np.min(train_scores, axis=1)
+    mean_squared_error  = np.min(test_scores, axis=1)
 
+    # plotting the result
     plt.grid()
-
-    plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
-             label="Training score")
-    plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
-             label="Cross-validation score")
-
+    plt.plot(train_sizes, mean_squared_error, 'o-', color="r",
+             label="Training mean squared root")
+    plt.plot(train_sizes, cv_mean_squared_error, 'o-', color="g",
+             label="Cross-validation mean squared root")
     plt.legend(loc="best")
     return plt
 

@@ -6,6 +6,7 @@ import pandas as pd
 from dateutil import relativedelta
 from datetime import date
 import itertools
+import math
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
@@ -14,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
+from sklearn.metrics import mean_squared_error
 
 import matplotlib.pyplot as plt
 
@@ -157,26 +159,20 @@ def retriew_above_thresold(classifier, features, thresold=10):
 def plot_learning_curve(estimator, title, data, features, classes, ylim=None):
     """
     Generate a simple plot of the test and training learning curve.
-
     Parameters
     ----------
     estimator : object type that implements the "fit" and "predict" methods
         An object of that type which is cloned for each validation.
-
     title : string
         Title for the chart.
-
     X : array-like, shape (n_samples, n_features)
         Training vector, where n_samples is the number of samples and
         n_features is the number of features.
-
     y : array-like, shape (n_samples) or (n_samples, n_features), optional
         Target relative to X for classification or regression;
         None for unsupervised learning.
-
     ylim : tuple, shape (ymin, ymax), optional
         Defines minimum and maximum yvalues plotted.
-
     cv : int, cross-validation generator or an iterable, optional
         Determines the cross-validation splitting strategy.
         Possible inputs for cv are:
@@ -184,14 +180,11 @@ def plot_learning_curve(estimator, title, data, features, classes, ylim=None):
           - integer, to specify the number of folds.
           - An object to be used as a cross-validation generator.
           - An iterable yielding train/test splits.
-
         For integer/None inputs, if ``y`` is binary or multiclass,
         :class:`StratifiedKFold` used. If the estimator is not a classifier
         or if ``y`` is neither binary nor multiclass, :class:`KFold` is used.
-
         Refer :ref:`User Guide <cross_validation>` for the various
         cross-validators that can be used here.
-
     n_jobs : integer, optional
         Number of jobs to run in parallel (default 1).
     """
@@ -219,6 +212,78 @@ def plot_learning_curve(estimator, title, data, features, classes, ylim=None):
                      color="r")
     plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                      test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+             label="Training score")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+             label="Cross-validation score")
+
+    plt.legend(loc="best")
+    return plt
+    
+def get_mean_squared_error(classifier, data, features, classes, samples,nbCrossVal):
+    
+    error_with_cv_list = []
+    error_without_cv_list = []
+    
+    for sampleNumber in samples:
+
+        temp = data.copy()
+        
+        # take a ramdom sample of size sampleNumber
+        sampleData = temp.sample(n=sampleNumber,replace=True)
+    
+        # select feature.
+        x = sampleData[features]
+        y = preprocessing.LabelEncoder().fit_transform(sampleData[classes])
+
+        # train without
+        x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=4)
+        y_test_binary = preprocessing.LabelBinarizer().fit_transform(y_test)
+
+        #prediction of our training part
+        classifier.fit(x_train, y_train)
+        predictions = classifier.predict(x_test)
+
+        #training part.
+        error_with_cv = cross_val_score(classifier, x, y, cv=50, scoring='neg_mean_squared_error')
+        error_without_cv = mean_squared_error(y_test,predictions,multioutput='raw_values')
+        
+        error_with_cv_list.append(abs(error_with_cv))
+        error_without_cv_list.append(error_without_cv)
+        
+    return (samples , error_with_cv_list ,error_without_cv_list)
+
+def learning_curve_mean_squared_error (classifier, data, features, classes, nb_samples,nbCrossVal,ylim = None):
+
+    plt.figure()
+    plt.title('Difference cross-validation, training with RMSE')
+    ylim = None
+    if ylim is not None:
+        plt.ylim(*ylim)
+    plt.xlabel("Training examples")
+    plt.ylabel("RMSE")
+
+    # select the different sample
+    x = math.floor(len(data)/nb_samples)
+    value_sample = []
+    while x < len(data):
+        value_sample.append(x)
+        x += x
+    value_sample.append(len(data))
+
+    # return the 
+    train_sizes, train_scores, test_scores = get_mean_squared_error(
+                                                                    classifier,
+                                                                    data, features,
+                                                                    classes,value_sample,
+                                                                    nbCrossVal
+                                                                   )
+
+    train_scores_mean = np.max(train_scores, axis=1)
+    test_scores_mean  = np.mean(test_scores, axis=1)
+
+    plt.grid()
+
     plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
              label="Training score")
     plt.plot(train_sizes, test_scores_mean, 'o-', color="g",

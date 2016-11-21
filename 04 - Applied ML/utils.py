@@ -210,6 +210,7 @@ def get_mean_squared_error(classifier, data, features, classes, samples, nbCross
     nb_samples : number of slice of data for the graph
     nbCrossVal : number of cross-validation, more is higher better become the prediciton.
     """
+
     error_with_cv_list = []
     error_without_cv_list = []
     
@@ -243,24 +244,26 @@ def get_mean_squared_error(classifier, data, features, classes, samples, nbCross
         
     return (samples , error_with_cv_list , error_without_cv_list)
 
+
 def learning_curve_mean_squared_error (classifier, data, features, classes, nb_samples,nbCrossVal,ylim = None):
     """
-    Generate a simple plot of the test and training learning curve depending of RMSE.
+    Generates a simple plot of the test and training learning curve depending of RMSE.
+    
     Parameters
     ----------
-    classifier : object type that implements the "fit" and "predict" methods
+    classifier: object type that implements the "fit" and "predict" methods
         An object of that type which is cloned for each validation.
-    data : array-like, shape (n_samples, n_features)
-        Training vector, where n_samples is the number of samples and
-        n_features is the number of features.
-    features : array-like, shape (n_samples) or (n_samples, n_features), optional
+    data: array-like, shape (n_samples, n_features)
+        Training vector, where n_samples is the number of samples and n_features is the number of features.
+    features: array-like, shape (n_samples) or (n_samples, n_features), optional
         Target relative to X for classification or regression;
         None for unsupervised learning.   
-    nb_samples : number of slice of data for the graph
-    nbCrossVal : number of cross-validation, more is higher better become the prediciton.
-    ylim : tuple, shape (ymin, ymax), optional
-        Defines minimum and maximum yvalues plotted.
+    nb_samples: number of slice of data for the graph
+    nbCrossVal: number of cross-validation, the higher is the value, the better becomes the prediciton
+    ylim: tuple, shape (ymin, ymax), optional
+        Defines minimum and maximum of plotted yvalues.
     """
+
     plt.figure()
     plt.title('Difference cross-validation, training with RMSE')
     ylim = None
@@ -269,7 +272,7 @@ def learning_curve_mean_squared_error (classifier, data, features, classes, nb_s
     plt.xlabel("Training examples")
     plt.ylabel("RMSE")
 
-    # select the different sample
+    # We select the different samples
     x = math.floor(len(data)/nb_samples)
     value_sample = []
     while x < len(data):
@@ -277,15 +280,15 @@ def learning_curve_mean_squared_error (classifier, data, features, classes, nb_s
         x += x
     value_sample.append(len(data))
 
-    # return the 
+    # We return
     train_sizes, train_scores, test_scores = get_mean_squared_error(
                       classifier,data, features,classes,value_sample,nbCrossVal)
 
-    # We take the best result by taking the minimum.
+    # We take the best result by taking the minimum
     cv_mean_squared_error = np.min(train_scores, axis=1)
     mean_squared_error  = np.min(test_scores, axis=1)
 
-    # plotting the result
+    # We plot the result
     plt.grid()
     plt.plot(train_sizes, mean_squared_error, 'o-', color="r",
              label="Training mean squared root")
@@ -302,6 +305,7 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
+
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     plt.colorbar()
@@ -332,23 +336,22 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
 # See: http://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html
 def plot_learning_curve(estimator, title, data, features, classes, ylim=None):
     """
-    Generate a simple plot of the test and training learning curve.
+    Generates a simple plot of the test and training learning curve.
     Parameters
     ----------
-    estimator : object type that implements the "fit" and "predict" methods
+    estimator: object type that implements the "fit" and "predict" methods
         An object of that type which is cloned for each validation.
-    title : string
+    title: string
         Title for the chart.
-    data : array-like, shape (n_samples, n_features)
-        Training vector, where n_samples is the number of samples and
-        n_features is the number of features.
-    features : array-like, shape (n_samples) or (n_samples, n_features), optional
+    data: array-like, shape (n_samples, n_features)
+        Training vector, where n_samples is the number of samples and n_features is the number of features.
+    features: array-like, shape (n_samples) or (n_samples, n_features), optional
         Target relative to X for classification or regression;
         None for unsupervised learning.
-    ylim : tuple, shape (ymin, ymax), optional
-        Defines minimum and maximum yvalues plotted.
+    ylim: tuple, shape (ymin, ymax), optional
+        Defines minimum and maximum of plotted yvalues.
     /* INTERNAL VARIABLE ONLY HERE */
-    cv : int, cross-validation generator or an iterable, optional
+    cv: int, cross-validation generator or an iterable, optional
         Determines the cross-validation splitting strategy.
         Possible inputs for cv are:
           - None, to use the default 3-fold cross-validation,
@@ -361,6 +364,7 @@ def plot_learning_curve(estimator, title, data, features, classes, ylim=None):
         Refer :ref:`User Guide <cross_validation>` for the various
         cross-validators that can be used here.
     """
+
     X = data[features]
     y = preprocessing.LabelEncoder().fit_transform(data[classes])
 

@@ -285,8 +285,8 @@ def learning_curve_mean_squared_error (classifier, data, features, classes, nb_s
                       classifier,data, features,classes,value_sample,nbCrossVal)
 
     # We take the best result by taking the minimum
-    cv_mean_squared_error = np.min(train_scores, axis=1)
-    mean_squared_error  = np.min(test_scores, axis=1)
+    cv_mean_squared_error = np.mean(train_scores, axis=1)
+    mean_squared_error  = np.mean(test_scores, axis=1)
 
     # We plot the result
     plt.grid()

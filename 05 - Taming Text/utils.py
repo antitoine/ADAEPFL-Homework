@@ -207,7 +207,7 @@ def get_vader_scores(email_content):
  
 def retrieve_email_sentiment(email, analyzer='sentiwordnet'):
   
-    email_content = str(email['ExtractedSubject']) + ' ' + str(email['ExtractedBodyText'])
+    email_content = str(email['MetadataSubject']) + ' ' + str(email['ExtractedBodyText'])
     if(analyzer == 'Vader'):
         types = get_vader_scores(email_content)
     else:
@@ -227,7 +227,7 @@ def retrieve_email_sentiment(email, analyzer='sentiwordnet'):
 def get_countries_sentiment(emails):
     countries_sentiment = Counter()
     for index, email in emails.iterrows():
-        email_content = str(email['ExtractedSubject']) + ' ' + str(email['ExtractedBodyText'])
+        email_content = str(email['MetadataSubject']) + ' ' + str(email['ExtractedBodyText'])
         lower_email_content = str.lower(email_content)
         for country in pycountry.countries:
             is_in_text = check_if_country_in_text(country, lower_email_content)
@@ -241,7 +241,7 @@ def get_countries_sentiment(emails):
     return countries_sentiment
 
 
-def plot_sentiment_by_contry(data_mails,opt,nb_contry = 20):
+def plot_sentiment_by_country(data_mails, opt, nb_contry = 20):
     '''
     Plot the number of country in axis, the number of occurence in ordinate
     and use 4 colors for the sentiments associate with the country. 
@@ -282,7 +282,7 @@ def plot_sentiment_by_contry(data_mails,opt,nb_contry = 20):
     map_color_legend = ['Lot of occurence', 'some occurence', 'Few occurence', 'Very few occurence']
     # build the plot
     sentiment_data_plot = sns.barplot(x=data_plot.index, y='Sentiment', data=data_plot, palette=colors)
-    # display a line to separate the graph.
+    # display a line to separate the graph (static line, for delimitation of 20 most- and less-preferred countries)
     define_plot_legend(sentiment_data_plot,map_color_legend,title=title)
     
     if opt == None and nb_contry == 20:
@@ -314,7 +314,7 @@ def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\
     # Set legend
     plt.legend((green_legend, palegreen_legend, sandybrown_legend, red_legend), map_color_legend)
     
-def plot_most_occurence_contry(data_mails,nb_contry = 20):
+def plot_countries_by_occurrences_and_sentiment(data_mails, nb_contry = 20):
     '''
     Plot the number of country in axis, the number of occurence in ordinate
     and use 4 colors for the sentiments associate with the country. 
@@ -344,7 +344,7 @@ def plot_most_quoted_countries(data,nb_country):
         - nb_country : Selection on the most representative country
     '''
     data = data.head(nb_country)
-    countries_plot = sns.barplot(x=data.index, y='Occurrences', data=data, color='lightblue')
+    countries_plot = sns.barplot(x=data.index, y='Occurrences', data=data, color='hotpink')
     for label in countries_plot.get_xticklabels():
         label.set_rotation(90)
     countries_plot.set(ylabel='Occurrences')

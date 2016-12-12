@@ -98,11 +98,11 @@ def generate_word_cloud(text, img_name='envelope.png', max_words=1000, width=900
 
 def get_country_name(word):
     '''
-    Get the contry if exist in dictionnary
+    Get the country if exist in dictionnary
     attributes:
         - word : text to study
         
-    return value None or the name of the contry if exist in dictionnary
+    return value None or the name of the country if exist in dictionnary
     '''
     lower_word = str.lower(word)
     for c in pycountry.countries:
@@ -113,7 +113,7 @@ def get_country_name(word):
 
 def check_if_country_in_text(country, text):
     '''
-    return the number of time, the text contain the contry name
+    return the number of time, the text contain the country name
     
     attributes:
         - country :
@@ -125,9 +125,9 @@ def check_if_country_in_text(country, text):
 
 def count_country_occurrences(country, text):
     '''
-    return the number of time, the text contain the contry name
+    return the number of time, the text contain the country name
     attributes:
-        - country : name of the contry
+        - country : name of the country
         - text    : text to study
         
     return value : integer
@@ -147,7 +147,7 @@ def count_countries_occurrences(text):
     attributes:
         - text : text to study
         
-    return value : array containing for each contry the number of apparition.
+    return value : array containing for each country the number of apparition.
     '''
     lower_text = str.lower(text)
     countries = Counter()
@@ -241,30 +241,30 @@ def get_countries_sentiment(emails):
     return countries_sentiment
 
 
-def plot_sentiment_by_country(data_mails, opt, nb_contry = 20):
+def plot_sentiment_by_country(data_mails, opt, nb_country = 20):
     '''
     Plot the number of country in axis, the number of occurence in ordinate
     and use 4 colors for the sentiments associate with the country. 
     attributes: 
         - opt : allow to select the option of the graph: 
-                - 'only_good' = keep only good feeling about the contry
-                - 'only_bad' = keep only bad feeling about the contry
+                - 'only_good' = keep only good feeling about the country
+                - 'only_bad' = keep only bad feeling about the country
                 -            = concat the good and bad feeling in the same plot.
         - data_mails : dataframe containing the data of the mails
-        - nb_contry : Selection on the most representative country
+        - nb_country : Selection on the most representative country
     '''
     # Selecting interesting data for the plot.
     if opt == 'only_good':
-        data_plot = data_mails.nlargest(nb_contry, 'Sentiment')
-        title = 'Hilary\'s opinion on the ' + str(nb_contry) + ' best feelings about contry'
+        data_plot = data_mails.nlargest(nb_country, 'Sentiment')
+        title = 'Hilary\'s opinion on the ' + str(nb_country) + ' best feelings about country'
     elif opt == 'only_bad':
-        data_plot = data_mails.nsmallest(nb_contry, 'Sentiment')
-        title = 'Hilary\'s opinion on the ' + str(nb_contry) + ' worst feelings about country'
+        data_plot = data_mails.nsmallest(nb_country, 'Sentiment')
+        title = 'Hilary\'s opinion on the ' + str(nb_country) + ' worst feelings about country'
     else:
-        most_liked = data_mails.nlargest(nb_contry, 'Sentiment')
-        worst_liked = data_mails.nsmallest(nb_contry, 'Sentiment')
+        most_liked = data_mails.nlargest(nb_country, 'Sentiment')
+        worst_liked = data_mails.nsmallest(nb_country, 'Sentiment')
         data_plot = pd.concat([most_liked,worst_liked])
-        title = 'Hilary\'s opinion on the ' + str(nb_contry) + ' worst/best feelings about country'
+        title = 'Hilary\'s opinion on the ' + str(nb_country) + ' worst/best feelings about country'
         
     data_plot.sort_values(by='Sentiment', ascending=False, inplace=True)
     data_plot_copy  = data_plot.copy()
@@ -285,8 +285,8 @@ def plot_sentiment_by_country(data_mails, opt, nb_contry = 20):
     # display a line to separate the graph (static line, for delimitation of 20 most- and less-preferred countries)
     define_plot_legend(sentiment_data_plot,map_color_legend,title=title)
     
-    if opt == None and nb_contry == 20:
-        sentiment_data_plot.axvline(nb_contry - 0.5)
+    if opt == None and nb_country == 20:
+        sentiment_data_plot.axvline(nb_country - 0.5)
     sns.plt.show()
     
 def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\'s opinion on the 20 most-quoted countries'):
@@ -314,16 +314,16 @@ def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\
     # Set legend
     plt.legend((green_legend, palegreen_legend, sandybrown_legend, red_legend), map_color_legend)
     
-def plot_countries_by_occurrences_and_sentiment(data_mails, nb_contry = 20):
+def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     '''
     Plot the number of country in axis, the number of occurence in ordinate
     and use 4 colors for the sentiments associate with the country. 
     attributes: 
         - data_mails : dataframe containing the data of the mails
-        - nb_contry : Selection on the most representative country
+        - nb_country : Selection on the most representative country
     '''
     # select the data for plotting
-    twenty_most_quoted_countries = data_mails.nlargest(nb_contry, 'Occurrences')
+    twenty_most_quoted_countries = data_mails.nlargest(nb_country, 'Occurrences')
 
     # Define the gradation of color in order to display three variable
     colors = ['green' if s > 0.5 
@@ -333,7 +333,7 @@ def plot_countries_by_occurrences_and_sentiment(data_mails, nb_contry = 20):
 
     countries_data_plot = sns.barplot(x=twenty_most_quoted_countries.index, y='Occurrences', data=twenty_most_quoted_countries, palette=colors)
     map_color_legend = ['Very good opinion', 'Good opinion', 'Bad opinion', 'Very bad opinion']
-    define_plot_legend(countries_data_plot,map_color_legend,'Occurrences',title='Hilary\'s opinion on the ' + str(nb_contry) + ' most-quoted countries')
+    define_plot_legend(countries_data_plot,map_color_legend,'Occurrences',title='Hilary\'s opinion on the ' + str(nb_country) + ' most-quoted countries')
     sns.plt.show()
     
 def plot_most_quoted_countries(data,nb_country): 

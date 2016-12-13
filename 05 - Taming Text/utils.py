@@ -23,14 +23,27 @@ import nltk.data
 # utils
 import pycountry
 import random
+import re
 from PIL import Image
 from os import path
 from os.path import exists
 from collections import Counter 
 
 
+# Stop words used in our analysis
+SPECIFIC_STOP_WORDS = ['re', 'pm', 'will', 'said', 'say', 'Mr', 'also']
+
 # Set of english token
 SENTENCES_DETECTOR = nltk.data.load('tokenizers/punkt/english.pickle')
+
+# WordNet Lemmatizer
+WORDNET_LEMMATIZER = WordNetLemmatizer()
+
+# Porter Stemmer
+PORTER_STEMMER = PorterStemmer()
+
+# Snowball Stemmer
+SNOWBALL_STEMMER = SnowballStemmer("english")
 
 # tools to detect sentiments in words
 SID = SentimentIntensityAnalyzer()
@@ -65,6 +78,32 @@ def do_stemming_words(stemmer, words):
     for w in words:
         text += stemmer.stem(w)
     return text
+
+
+def process_email_content(email):
+    '''
+    This function cleans an email content.
+
+    Parameters
+    email: email to be cleaned
+    '''
+
+    email_content = email['ExtractedBodyText']
+    
+    for word in SPECIFIC_STOP_WORDS: 
+        email_content = re.sub(r'\b%s\b' % word, '', email_content, flags=re.IGNORECASE)
+
+    tokens = REGEX_TOKENIZER.tokenize(email_content)
+    
+    filtered_words = [word for word in tokens if word not in stopwords.words('english')]
+    filtered_text = generate_raw_text(data=filtered_words)
+    
+    wl_text = WORDNET_LEMMATIZER.lemmatize(filtered_text)
+    
+    final_text = do_stemming_words(stemmer=SNOWBALL_STEMMER, words=wl_text)
+    
+    return final_text
+
 
 
 def grey_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
@@ -289,6 +328,7 @@ def plot_sentiment_by_country(data_mails, opt, nb_country = 20):
         sentiment_data_plot.axvline(nb_country - 0.5)
     sns.plt.show()
     
+
 def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\'s opinion on the 20 most-quoted countries'):
     '''
     Define the legend,title and label of a plot
@@ -314,6 +354,7 @@ def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\
     # Set legend
     plt.legend((green_legend, palegreen_legend, sandybrown_legend, red_legend), map_color_legend)
     
+
 def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     '''
     Plot the number of country in axis, the number of occurence in ordinate
@@ -336,6 +377,7 @@ def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     define_plot_legend(countries_data_plot,map_color_legend,'Occurrences',title='Hilary\'s opinion on the ' + str(nb_country) + ' most-quoted countries')
     sns.plt.show()
     
+
 def plot_most_quoted_countries(data,nb_country): 
     '''
     Plot an histogram representing the nb of occurence each country appear to Hilary's mails. 
@@ -350,3 +392,26 @@ def plot_most_quoted_countries(data,nb_country):
     countries_plot.set(ylabel='Occurrences')
     countries_plot.set_title('Number of occurrences of ' + str(nb_country) + ' most-quoted countries')
     sns.plt.show()
+
+
+# Following code was taken from StackOverflow (credits to alvas) and modified accordingly
+def create_corpus(sentences):
+    # Creation of the dictionary, using all the retrieved sentences
+    all_text_array = [[word for word in sentence.lower().split() if word not in stopwords.words('english')] for sentence in sentences]
+    dictionary = corpora.Dictionary(all_text_array)
+    
+    # Creation of links between ids and words for better readability
+    id2word = {}
+    for word in dictionary.token2id:    
+        id2word[dictionary.token2id[word]] = word
+
+    # Creation of the corpus
+    corpus = [dictionary.doc2bow(text) for text in all_text_array]
+
+    return corpus, id2word
+
+
+def create_lda_model(corpus, id2word, nb_topics=5):
+    lda = models.LdaModel(corpus, id2word=id2word, num_topics=nb_topics)
+    
+    return lda

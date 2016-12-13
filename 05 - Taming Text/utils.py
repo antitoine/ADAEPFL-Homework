@@ -329,7 +329,7 @@ def plot_sentiment_by_country(data_mails, opt, nb_country = 20):
     sns.plt.show()
     
 
-def define_plot_legend (plot,map_color_legend,label_y='Sentiment',title='Hilary\'s opinion on the 20 most-quoted countries'):
+def define_plot_legend (plot, map_color_legend,label_y = 'Sentiment', title = 'Hilary\'s opinion on the 20 most-quoted countries'):
     '''
     Define the legend,title and label of a plot
     attribute:
@@ -378,7 +378,7 @@ def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     sns.plt.show()
     
 
-def plot_most_quoted_countries(data,nb_country): 
+def plot_most_quoted_countries(data, nb_country): 
     '''
     Plot an histogram representing the nb of occurence each country appear to Hilary's mails. 
     attributes: 
@@ -415,3 +415,20 @@ def create_lda_model(corpus, id2word, nb_topics=5):
     lda = models.LdaModel(corpus, id2word=id2word, num_topics=nb_topics)
     
     return lda
+
+
+def get_text_without_Stop_Word(data): 
+    '''
+    get all words who are not present in stopwords.words('english')
+    
+    attributes:
+        data : data contain String on witch we need to process.
+        all_text_array : array that contains the new value computed.
+    '''
+    all_text_array = []
+    for content in data:
+        all_text_array += [[word for word in sentence.lower().split() if word not in stopwords.words('english')] 
+                           for sentence in SENTENCES_DETECTOR.tokenize(content.strip())]
+    
+    return all_text_array
+  

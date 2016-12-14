@@ -88,7 +88,7 @@ def process_email_content(email):
     email: email to be cleaned
     '''
 
-    email_content = email['ExtractedBodyText']
+    email_content = str(email['ExtractedBodyText'])
     
     for word in SPECIFIC_STOP_WORDS: 
         email_content = re.sub(r'\b%s\b' % word, '', email_content, flags=re.IGNORECASE)
@@ -395,9 +395,13 @@ def plot_most_quoted_countries(data, nb_country):
 
 
 # Following code was taken from StackOverflow (credits to alvas) and modified accordingly
-def create_corpus(sentences):
+def create_corpus(content, processed=False):
     # Creation of the dictionary, using all the retrieved sentences
-    all_text_array = [[word for word in sentence.lower().split() if word not in stopwords.words('english')] for sentence in sentences]
+    if not processed:
+        all_text_array = [[word for word in sentence.lower().split() if word not in stopwords.words('english')] for sentence in content]
+    else:
+        all_text_array = content
+
     dictionary = corpora.Dictionary(all_text_array)
     
     # Creation of links between ids and words for better readability
@@ -417,7 +421,7 @@ def create_lda_model(corpus, id2word, nb_topics=5):
     return lda
 
 
-def get_text_without_Stop_Word(data): 
+def get_text_without_stopwords(data): 
     '''
     get all words who are not present in stopwords.words('english')
     

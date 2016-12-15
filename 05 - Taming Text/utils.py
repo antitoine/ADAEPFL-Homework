@@ -1,6 +1,7 @@
 # IMPORT SECTION #
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import nltk.data
 import numpy as np
 import pandas as pd
@@ -335,25 +336,20 @@ def plot_sentiment_by_country(data_mails, opt, nb_country = 20):
         title = 'Hilary\'s opinion for the ' + str(nb_country) + ' most- and less-preferred countries'
     
     data_plot.sort_values(by='Sentiment', ascending=False, inplace=True)
-    data_plot_copy  = data_plot.copy()
-    # We use log because of the distribution of data
-    data_plot_copy['Occurrences'] = np.log(data_plot_copy['Occurrences'])
-    
-    max_occurence = max(data_plot_copy.Occurrences)
-    divided_max_occurence = max_occurence/4
 
     # Definition of the gradation of color
-    colors = ['green' if s > max_occurence-divided_max_occurence 
-         else 'palegreen' if (s < max_occurence-divided_max_occurence and s > max_occurence-2*divided_max_occurence) 
-         else 'sandybrown' if (s < max_occurence-2*divided_max_occurence and s > max_occurence-3*divided_max_occurence) 
-         else 'red' for s in data_plot_copy['Occurrences']]
-    map_color_legend = ['Lot of occurence', 'some occurence', 'Few occurence', 'Very few occurence']
+    y = np.array(np.log(data_plot['Occurrences']))
+    colors = cm.BrBG(y / float(max(y)))
+    plot = plt.scatter(y, y, c=y, cmap='BrBG')
+    plt.clf()
+    clb = plt.colorbar(plot)
+    clb.ax.set_title('Occurences (log)')
     
     # Creation of the plot
     sentiment_data_plot = sns.barplot(x=data_plot.index, y='Sentiment', data=data_plot, palette=colors)
     
     # Display of a line to separate the graph (static line, for delimitation of 20 most- and less-preferred countries)
-    define_plot_legend(sentiment_data_plot,map_color_legend,title=title)
+    define_plot_title_and_labels(sentiment_data_plot, title=title)
     
     if opt == None and nb_country == 20:
         sentiment_data_plot.axvline(nb_country - 0.5)
@@ -361,7 +357,7 @@ def plot_sentiment_by_country(data_mails, opt, nb_country = 20):
     sns.plt.show()
 
 
-def define_plot_legend (plot, map_color_legend, label_y = 'Sentiment', title = 'Hilary\'s opinion for the 20 most-quoted countries'):
+def define_plot_title_and_labels(plot, label_y='Sentiment', title='Hilary\'s opinion for the 20 most-quoted countries'):
     '''
     This function defines the legend, title and label of a plot.
     
@@ -377,16 +373,7 @@ def define_plot_legend (plot, map_color_legend, label_y = 'Sentiment', title = '
         
     plot.set(ylabel=label_y)
     plot.set_title(title)
-    
-    # Set of color
-    green_legend = mpatches.Patch(color='green', linewidth=0)
-    palegreen_legend = mpatches.Patch(color='palegreen', linewidth=0)
-    sandybrown_legend = mpatches.Patch(color='sandybrown', linewidth=0)
-    red_legend = mpatches.Patch(color='red', linewidth=0)
-    
-    # Set of legend
-    plt.legend((green_legend, palegreen_legend, sandybrown_legend, red_legend), map_color_legend)
-    
+
 
 def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     '''
@@ -400,18 +387,19 @@ def plot_countries_by_occurrences_and_sentiment(data_mails, nb_country = 20):
     '''
 
     # We select data for plotting
-    twenty_most_quoted_countries = data_mails.nlargest(nb_country, 'Occurrences')
+    most_quoted_countries = data_mails.nlargest(nb_country, 'Occurrences')
 
-    # We define the gradation of colors in order to display three variables
-    colors = ['green' if s > 0.5 
-         else 'palegreen' if (s < 0.5 and s > 0) 
-         else 'sandybrown' if (s < 0 and s > -0.5) 
-         else 'red' for s in twenty_most_quoted_countries['Sentiment']]
+    # Definition of the gradation of color
+    y = np.array(most_quoted_countries['Sentiment'])
+    colors = cm.RdYlGn(y / float(max(y)))
+    plot = plt.scatter(y, y, c=y, cmap='RdYlGn')
+    plt.clf()
+    clb = plt.colorbar(plot)
+    clb.ax.set_title('Sentiments')
 
     # We create and display graph
-    countries_data_plot = sns.barplot(x=twenty_most_quoted_countries.index, y='Occurrences', data=twenty_most_quoted_countries, palette=colors)
-    map_color_legend = ['Very good opinion', 'Good opinion', 'Bad opinion', 'Very bad opinion']
-    define_plot_legend(countries_data_plot,map_color_legend,'Occurrences',title='Hilary\'s opinion for the ' + str(nb_country) + ' most-quoted countries')
+    countries_data_plot = sns.barplot(x=most_quoted_countries.index, y='Occurrences', data=most_quoted_countries, palette=colors)
+    define_plot_title_and_labels(countries_data_plot, 'Occurrences', title='Hilary\'s opinion for the ' + str(nb_country) + ' most-quoted countries')
     sns.plt.show()
     
 
